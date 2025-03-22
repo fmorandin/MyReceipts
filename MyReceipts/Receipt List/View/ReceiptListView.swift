@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  ReceiptListView.swift
 //  MyReceipts
 //
 //  Created by Felipe Morandin on 20/03/2025.
@@ -8,13 +8,16 @@
 import SwiftUI
 import CoreData
 
-struct ContentView: View {
+struct ReceiptListView: View {
+
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+        sortDescriptors: [NSSortDescriptor(keyPath: \Receipt.timestamp, ascending: true)],
+        animation: .default
+    )
+
+    private var items: FetchedResults<Receipt>
 
     var body: some View {
         NavigationView {
@@ -29,12 +32,9 @@ struct ContentView: View {
                 .onDelete(perform: deleteItems)
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
                 ToolbarItem {
                     Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                        Label("Add Item", systemImage: "camera")
                     }
                 }
             }
@@ -43,8 +43,9 @@ struct ContentView: View {
     }
 
     private func addItem() {
+
         withAnimation {
-            let newItem = Item(context: viewContext)
+            let newItem = Receipt(context: viewContext)
             newItem.timestamp = Date()
 
             do {
@@ -59,6 +60,7 @@ struct ContentView: View {
     }
 
     private func deleteItems(offsets: IndexSet) {
+
         withAnimation {
             offsets.map { items[$0] }.forEach(viewContext.delete)
 
@@ -75,12 +77,13 @@ struct ContentView: View {
 }
 
 private let itemFormatter: DateFormatter = {
+    
     let formatter = DateFormatter()
     formatter.dateStyle = .short
-    formatter.timeStyle = .medium
+    formatter.timeStyle = .short
     return formatter
 }()
 
 #Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    ReceiptListView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }
