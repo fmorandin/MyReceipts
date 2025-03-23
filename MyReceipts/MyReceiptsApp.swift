@@ -14,7 +14,7 @@ struct MyReceiptsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ReceiptListView()
+            ReceiptView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
