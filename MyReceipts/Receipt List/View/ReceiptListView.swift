@@ -10,6 +10,9 @@ import CoreData
 
 struct ReceiptListView: View {
 
+    @State private var isShowCamera = false
+    @State private var image = UIImage()
+
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
@@ -33,12 +36,17 @@ struct ReceiptListView: View {
             }
             .toolbar {
                 ToolbarItem {
-                    Button(action: addItem) {
+                    Button(action: { self.isShowCamera = true }) {
                         Label("Add Item", systemImage: "camera")
                     }
                 }
             }
             Text("Select an item")
+        }
+        .sheet(isPresented: $isShowCamera) {
+
+            ImagePicker(selectedImage: self.$image)
+                .ignoresSafeArea(edges: .all)
         }
     }
 
