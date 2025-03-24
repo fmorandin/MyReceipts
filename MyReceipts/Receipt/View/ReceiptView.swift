@@ -58,5 +58,5 @@ private let itemFormatter: DateFormatter = {
 }()
 
 #Preview {
-    ReceiptView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    ReceiptView()
 }

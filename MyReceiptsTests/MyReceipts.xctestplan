@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "47E85A9E-C7AC-49F0-966D-50AD59D184D4",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "nsZombieEnabled" : true,
+    "testExecutionOrdering" : "random",
+    "threadSanitizerEnabled" : true,
+    "undefinedBehaviorSanitizerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:MyReceipts.xcodeproj",
+        "identifier" : "18F2782B2D8C825C006F78EF",
+        "name" : "MyReceiptsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

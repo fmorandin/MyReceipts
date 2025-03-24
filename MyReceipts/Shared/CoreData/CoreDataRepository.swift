@@ -10,15 +10,12 @@ import os.log
 
 protocol CoreDataRepositoryProtocol {
 
-    associatedtype Entity: NSManagedObject
-    func fetchAll(sortDescriptors: [NSSortDescriptor]?) throws -> [Entity]?
-    func fetch(predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?) throws -> [Entity]?
-    func create(_ configure: (Entity) -> Void) throws
-    func delete(_ object: Entity) throws
-    func saveContext() throws
+    func fetchAll<T: NSManagedObject>(sortDescriptors: [NSSortDescriptor]?) throws -> [T]?
+    func create<T: NSManagedObject>(_ configure: (T) -> Void) throws
+    func delete<T: NSManagedObject>(_ object: T) throws
 }
 
-final class CoreDataRepository<T: NSManagedObject>: CoreDataRepositoryProtocol {
+final class CoreDataRepository: CoreDataRepositoryProtocol {
 
     // MARK: - Private Variables
 
@@ -42,7 +39,7 @@ final class CoreDataRepository<T: NSManagedObject>: CoreDataRepositoryProtocol {
 
     // MARK: - Public Methods
 
-    func fetchAll(sortDescriptors: [NSSortDescriptor]? = nil) throws -> [T]? {
+    func fetchAll<T: NSManagedObject>(sortDescriptors: [NSSortDescriptor]? = nil) throws -> [T]? {
 
         logger.info("Fetching all data from CoreData with sortDescriptors: \(String(describing: sortDescriptors))")
 
@@ -56,24 +53,7 @@ final class CoreDataRepository<T: NSManagedObject>: CoreDataRepositoryProtocol {
         }
     }
 
-    func fetch(predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]? = nil) throws -> [T]? {
-
-        logger.info(
-            "Fetching data from CoreData with predicate: \(String(describing: predicate)) and sortDescriptors: \(String(describing: sortDescriptors))"
-        )
-
-        let request = T.fetchRequest()
-        request.predicate = predicate
-        request.sortDescriptors = sortDescriptors
-
-        do {
-            return try context.fetch(request) as? [T]
-        } catch {
-            throw error
-        }
-    }
-
-    func create(_ configure: (T) -> Void) throws {
+    func create<T: NSManagedObject>(_ configure: (T) -> Void) throws {
 
         logger.info("Creating data in CoreData")
 
@@ -87,7 +67,7 @@ final class CoreDataRepository<T: NSManagedObject>: CoreDataRepositoryProtocol {
         }
     }
 
-    func delete(_ object: T) throws {
+    func delete<T: NSManagedObject>(_ object: T) throws {
 
         logger.info("Deleting data in CoreData")
 

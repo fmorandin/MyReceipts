@@ -19,7 +19,7 @@ struct ReceiptService: ReceiptServiceProtocol {
 
     // MARK: - Private Variables
 
-    private let repository: CoreDataRepository<Receipt>
+    private let repository: CoreDataRepositoryProtocol
 
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "br.com.felipemorandin.MyReceipts",
@@ -28,7 +28,7 @@ struct ReceiptService: ReceiptServiceProtocol {
 
     // MARK: - Initialiser
 
-    init(repository: CoreDataRepository<Receipt> = CoreDataRepository()) {
+    init(repository: CoreDataRepositoryProtocol = CoreDataRepository()) {
 
         self.repository = repository
     }
@@ -52,7 +52,9 @@ struct ReceiptService: ReceiptServiceProtocol {
     func saveReceipt(currency: String, location: String, totalAmount: Double, date: Date) throws {
 
         do {
-            try repository.create { receipt in
+            try repository.create { item in
+                guard let receipt = item as? Receipt else { return }
+
                 receipt.timestamp = date
                 receipt.currency = currency
                 receipt.location = location

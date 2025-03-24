@@ -57,10 +57,11 @@ final class ReceiptListViewModel: ObservableObject {
         }
     }
 
-    func removeReceipt(_ receiptId: Int) {
+    func removeReceipt(_ receiptId: ObjectIdentifier) {
 
         do {
-            guard let coreDataReceipt = try service.fetchReceipts()?.first(where: { $0.id.hashValue == receiptId }) else {
+            guard let receipts = try service.fetchReceipts(),
+                  let coreDataReceipt = receipts.first(where: { $0.id.hashValue == receiptId.hashValue }) else {
                 errorMessage = "Receipt not found."
                 return
             }
