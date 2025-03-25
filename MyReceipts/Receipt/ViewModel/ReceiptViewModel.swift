@@ -20,7 +20,7 @@ final class ReceiptListViewModel: ObservableObject {
     @Published var receipts: [ReceiptModel] = []
     @Published var errorMessage: String?
 
-    @Published var isShowCamera = false
+    @Published var showScanner = false
     @Published var image = UIImage()
 
     // MARK: - Initialiser

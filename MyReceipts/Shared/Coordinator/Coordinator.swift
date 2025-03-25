@@ -6,25 +6,38 @@
 //
 
 import UIKit
+import VisionKit
 
-final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
 
-    var parent: ImagePicker
+    var parent: ScannerView
 
-    init(_ parent: ImagePicker) {
-        
+    init(_ parent: ScannerView) {
+
         self.parent = parent
     }
 
-    func imagePickerController(
-        _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+    func documentCameraViewController(
+        _ controller: VNDocumentCameraViewController,
+        didFinishWith scan: VNDocumentCameraScan
     ) {
 
-        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            parent.selectedImage = image
+        var scannedPages = [UIImage]()
+
+        for pageNumber in 0..<scan.pageCount {
+            scannedPages.append(scan.imageOfPage(at: pageNumber))
         }
 
-        parent.presentationMode.wrappedValue.dismiss()
+        parent.didFinishScanning(.success(scannedPages))
+    }
+
+    func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFailWithError error: any Error) {
+
+        parent.didFinishScanning(.failure(error))
+    }
+
+    func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
+
+        parent.didCancelScanning()
     }
 }

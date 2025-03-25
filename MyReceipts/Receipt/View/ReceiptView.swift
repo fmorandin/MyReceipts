@@ -32,7 +32,7 @@ struct ReceiptView: View {
             }
             .toolbar {
                 ToolbarItem {
-                    Button(action: { viewModel.isShowCamera = true }) {
+                    Button(action: { viewModel.showScanner = true }) {
                         Label("Add Item", systemImage: "camera")
                     }
                 }
@@ -40,11 +40,23 @@ struct ReceiptView: View {
             .onAppear {
                 viewModel.fetchReceipts()
             }
-            .sheet(isPresented: $viewModel.isShowCamera) {
-                
-                ImagePicker(selectedImage: $viewModel.image)
-                    .ignoresSafeArea(edges: .all)
-            }
+            .sheet(isPresented: $viewModel.showScanner, content: {
+                ScannerView { result in
+
+                    switch result {
+                    case .success(let scannedImages):
+                        break
+                        
+                    case .failure(let error):
+                        viewModel.errorMessage = error.localizedDescription
+                    }
+
+                    viewModel.showScanner = false
+
+                } didCancelScanning: {
+                    viewModel.showScanner = false
+                }
+            })
         }
     }
 }
