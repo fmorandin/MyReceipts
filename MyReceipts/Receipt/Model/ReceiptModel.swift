@@ -7,20 +7,18 @@
 
 import Foundation
 
-struct ReceiptModel: Identifiable {
+final class ReceiptModel: Identifiable {
 
     let id: ObjectIdentifier
-    let timestamp: Date
-    let currency: String
-    let location: String
-    let totalAmount: Double
+    var timestamp: String?
+    var location: String?
+    var totalAmount: String?
 
-    init(receipt: Receipt) {
+    init(id: ObjectIdentifier, timestamp: String?, location: String?, totalAmount: String?) {
 
-        self.id = ObjectIdentifier(receipt)
-        self.timestamp = receipt.timestamp ?? Date()
-        self.currency = receipt.currency ?? "$"
-        self.location = receipt.location ?? "--"
-        self.totalAmount = receipt.totalAmount
+        self.id = id
+        self.timestamp = timestamp
+        self.location = location
+        self.totalAmount = totalAmount
     }
 }

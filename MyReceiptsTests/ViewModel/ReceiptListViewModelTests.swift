@@ -33,23 +33,22 @@ final class ReceiptListViewModelTests: XCTestCase {
 
     func testAddReceipt_ShouldAddReceiptToViewModel() {
 
-        viewModel.addReceipt(currency: "GBP", location: "London", totalAmount: 75.0, date: Date())
+        viewModel.addReceipt(location: "London", totalAmount: "75.0", date: "25/03/2025")
         XCTAssertEqual(viewModel.receipts.count, 1, "Expected one receipt after adding")
     }
 
     func testRemoveReceipt_ShouldDeleteReceiptFromViewModel() {
 
-        viewModel.addReceipt(currency: "USD", location: "New York", totalAmount: 120.0, date: Date())
+        viewModel.addReceipt(location: "New York", totalAmount: "120.0", date: "25/03/2025")
         XCTAssertEqual(viewModel.receipts.count, 1, "Expected one receipt after adding")
 
-        print(viewModel.receipts)
         viewModel.removeReceipt(viewModel.receipts.first!.id)
 
         XCTAssertTrue(viewModel.receipts.isEmpty, "Expected no receipts after removal")
     }
 
     func testFetchReceipts_WithStoredReceipts_ShouldLoadThem() {
-        viewModel.addReceipt(currency: "EUR", location: "Paris", totalAmount: 90.0, date: Date())
+        viewModel.addReceipt(location: "Paris", totalAmount: "90.0", date: "25/03/2025")
 
         let newViewModel = ReceiptListViewModel(service: mockService)
         newViewModel.fetchReceipts()

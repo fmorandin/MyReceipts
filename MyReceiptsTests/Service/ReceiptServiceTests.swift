@@ -19,16 +19,15 @@ final class ReceiptServiceTests: XCTestCase {
 
     func testSaveReceipt_ShouldStoreReceiptCorrectly() throws {
         let date = Date()
-        try service.saveReceipt(currency: "USD", location: "New York", totalAmount: 100.0, date: date)
+        try service.saveReceipt(location: "New York", totalAmount: "100.0", date: "25/03/2025")
 
         let receipts = try service.fetchReceipts()
         XCTAssertEqual(receipts?.count, 1, "Expected one receipt to be stored")
-        XCTAssertEqual(receipts?.first?.currency, "USD")
     }
 
     func testDeleteReceipt_ShouldRemoveReceiptFromStorage() throws {
         let date = Date()
-        try service.saveReceipt(currency: "EUR", location: "Lisbon", totalAmount: 50.0, date: date)
+        try service.saveReceipt(location: "Lisbon", totalAmount: "50.0", date: "25/03/2025")
 
         var receipts = try service.fetchReceipts()
         XCTAssertEqual(receipts?.count, 1, "Expected one receipt stored before deletion")

@@ -11,6 +11,7 @@ import CoreData
 struct ReceiptView: View {
 
     @StateObject private var viewModel = ReceiptListViewModel()
+    @State private var isRecognizingText = false
 
     var body: some View {
         NavigationView {
@@ -21,11 +22,13 @@ struct ReceiptView: View {
                         .font(.headline)
                         .padding()
                 } else {
-                    List(viewModel.receipts) { receipt in
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Location: \(receipt.location)")
-                            Text("Value: \(receipt.totalAmount, specifier: "%.2f") - \(receipt.currency)")
-                            Text("Date: \(receipt.timestamp, formatter: itemFormatter)")
+                    List {
+                        ForEach(viewModel.receipts) { receipt in
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("Location: \(receipt.location ?? "Unknown")")
+                                Text("Value: \(receipt.totalAmount ?? "Unknown")")
+                                Text("Date: \(receipt.timestamp ?? "Unknown")")
+                            }
                         }
                     }
                 }
@@ -40,34 +43,42 @@ struct ReceiptView: View {
             .onAppear {
                 viewModel.fetchReceipts()
             }
-            .sheet(isPresented: $viewModel.showScanner, content: {
-                ScannerView { result in
+            .sheet(
+                isPresented: $viewModel.showScanner,
+                content: {
+                    ScannerView { result in
 
-                    switch result {
-                    case .success(let scannedImages):
-                        break
-                        
-                    case .failure(let error):
-                        viewModel.errorMessage = error.localizedDescription
+                        switch result {
+                        case .success(let scannedImages):
+
+                            isRecognizingText = true
+
+                            TextRecognition(scannedImages: scannedImages) { result in
+
+                                switch result {
+                                case .success(let items):
+                                    viewModel.parseAndAddReceipt(items)
+                                case .failure(let error):
+                                    viewModel.errorMessage = error.localizedDescription
+                                }
+
+                                isRecognizingText = false
+                            }
+                            .recognizeText()
+
+                        case .failure(let error):
+                            viewModel.errorMessage = error.localizedDescription
+                        }
+
+                        viewModel.showScanner = false
+
+                    } didCancelScanning: {
+                        viewModel.showScanner = false
                     }
-
-                    viewModel.showScanner = false
-
-                } didCancelScanning: {
-                    viewModel.showScanner = false
-                }
-            })
+                })
         }
     }
 }
-
-private let itemFormatter: DateFormatter = {
-    
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .short
-    return formatter
-}()
 
 #Preview {
     ReceiptView()

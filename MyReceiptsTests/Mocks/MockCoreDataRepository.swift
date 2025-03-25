@@ -14,7 +14,7 @@ final class MockCoreDataRepository: CoreDataRepositoryProtocol {
     private var receipts: [Receipt] = []
 
     func fetchAll<T: NSManagedObject>(sortDescriptors: [NSSortDescriptor]?) throws -> [T]? {
-        receipts.sorted { $0.timestamp ?? Date() > $1.timestamp ?? Date() } as? [T]
+        receipts as? [T]
     }
 
     func create<T: NSManagedObject>(_ configure: (T) -> Void) throws {

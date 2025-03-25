@@ -10,14 +10,12 @@ import os.log
 
 protocol CoreDataRepositoryProtocol {
 
-    func fetchAll<T: NSManagedObject>(sortDescriptors: [NSSortDescriptor]?) throws -> [T]?
-    func create<T: NSManagedObject>(_ configure: (T) -> Void) throws
-    func delete<T: NSManagedObject>(_ object: T) throws
+    func fetchAll(sortDescriptors: [NSSortDescriptor]?) throws -> [Receipt]?
+    func create(_ configure: (Receipt) -> Void) throws
+    func delete(_ receipt: Receipt) throws
 }
 
 final class CoreDataRepository: CoreDataRepositoryProtocol {
-
-    // MARK: - Private Variables
 
     private let persistentContainer: NSPersistentContainer
 
@@ -30,35 +28,45 @@ final class CoreDataRepository: CoreDataRepositoryProtocol {
         category: NSStringFromClass(CoreDataRepository.self)
     )
 
-    // MARK: - Initialiser
-
     init(container: NSPersistentContainer = PersistenceController.shared.container) {
-
         self.persistentContainer = container
     }
 
-    // MARK: - Public Methods
+    func fetchAll(sortDescriptors: [NSSortDescriptor]? = nil) throws -> [Receipt]? {
 
-    func fetchAll<T: NSManagedObject>(sortDescriptors: [NSSortDescriptor]? = nil) throws -> [T]? {
+        logger.info("Fetching all receipts from CoreData with sortDescriptors: \(String(describing: sortDescriptors))")
 
-        logger.info("Fetching all data from CoreData with sortDescriptors: \(String(describing: sortDescriptors))")
-
-        let request = T.fetchRequest()
+        let request = Receipt.fetchRequest()
         request.sortDescriptors = sortDescriptors
 
         do {
-            return try context.fetch(request) as? [T]
+            return try context.fetch(request)
         } catch {
             throw error
         }
     }
 
-    func create<T: NSManagedObject>(_ configure: (T) -> Void) throws {
+    func create(_ configure: (Receipt) -> Void) throws {
 
-        logger.info("Creating data in CoreData")
+        logger.info("Creating receipt data in CoreData")
 
-        let entity = T(context: context)
-        configure(entity)
+        let receipt = Receipt(context: context)
+        configure(receipt)
+
+        do {
+            try saveContext()
+            context.refresh(receipt, mergeChanges: true) // Refresh the context to make sure it has the latest changes
+            logger.info("Successfully saved a receipt for \(receipt.totalAmount ?? "") at \(receipt.location ?? "") in \(receipt.timestamp ?? "")")
+        } catch {
+            throw error
+        }
+    }
+
+    func delete(_ receipt: Receipt) throws {
+
+        logger.info("Deleting receipt from CoreData")
+
+        context.delete(receipt)
 
         do {
             try saveContext()
@@ -67,25 +75,13 @@ final class CoreDataRepository: CoreDataRepositoryProtocol {
         }
     }
 
-    func delete<T: NSManagedObject>(_ object: T) throws {
-
-        logger.info("Deleting data in CoreData")
-
-        context.delete(object)
-
-        do {
-            try saveContext()
-        } catch {
-            throw error
-        }
-    }
-
-    func saveContext() throws {
+    private func saveContext() throws {
 
         logger.info("Saving context in CoreData")
 
         if context.hasChanges {
             do {
+                PersistenceController.shared.saveContext()
                 try context.save()
             } catch {
                 throw error

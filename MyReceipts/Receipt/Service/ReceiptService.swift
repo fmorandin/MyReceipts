@@ -11,7 +11,7 @@ import os.log
 protocol ReceiptServiceProtocol {
 
     func fetchReceipts() throws -> [Receipt]?
-    func saveReceipt(currency: String, location: String, totalAmount: Double, date: Date) throws
+    func saveReceipt(location: String, totalAmount: String, date: String) throws
     func deleteReceipt(_ receipt: Receipt) throws
 }
 
@@ -40,27 +40,25 @@ struct ReceiptService: ReceiptServiceProtocol {
         logger.info("Fetching receipts using CoreDataRepository")
 
         do {
-            return try repository.fetchAll(
-                sortDescriptors: [NSSortDescriptor(keyPath: \Receipt.timestamp, ascending: false)]
-            )
+            let savedReceipts = try repository.fetchAll(sortDescriptors: nil)
+            logger.info("Successfully fetched \(String(describing: savedReceipts?.count)) receipts")
+            return savedReceipts
         } catch {
             logger.error("Failed to fetch receipts: \(error.localizedDescription)")
             throw error
         }
     }
 
-    func saveReceipt(currency: String, location: String, totalAmount: Double, date: Date) throws {
+    func saveReceipt(location: String, totalAmount: String, date: String) throws {
 
         do {
-            try repository.create { item in
-                guard let receipt = item as? Receipt else { return }
+            try repository.create { receipt in
 
                 receipt.timestamp = date
-                receipt.currency = currency
                 receipt.location = location
                 receipt.totalAmount = totalAmount
+                logger.info("Saved receipt: \(receipt.location ?? "Unknown Location"), \(receipt.timestamp ?? "Unknown Date"), \(receipt.totalAmount ?? "Unknown Amount")")
             }
-            logger.info("Successfully saved a receipt for \(totalAmount)\(currency) at \(location)")
         } catch {
             logger.error("Failed to save receipt: \(error.localizedDescription)")
             throw error
